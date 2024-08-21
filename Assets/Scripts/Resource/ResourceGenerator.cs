@@ -10,10 +10,7 @@ public class ResourceGenerator : MonoBehaviour
     [SerializeField] private Transform _parentTransform;
     [SerializeField] private float spawnPositionY = 0f;
 
-    private void Start()
-    {
-        StartCoroutine(GenerateResource());
-    }
+    private void Start() => StartCoroutine(GenerateResource());
 
     private IEnumerator GenerateResource()
     {
@@ -37,5 +34,12 @@ public class ResourceGenerator : MonoBehaviour
         resource.transform.SetParent(_parentTransform);
         resource.gameObject.SetActive(true);
         resource.transform.position = spawnPoint;
+        resource.Destroyed += OnDestroyed;
+    }
+
+    private void OnDestroyed(Resource resource)
+    {
+        resource.Destroyed -= OnDestroyed;
+        _pool.PutObject(resource);
     }
 }

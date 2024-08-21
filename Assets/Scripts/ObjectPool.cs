@@ -8,10 +8,7 @@ public class ObjectPool : MonoBehaviour
 
     private Queue<Resource> _resources;
 
-    private void Awake()
-    {
-        _resources = new Queue<Resource>();
-    }
+    private void Awake() => _resources = new Queue<Resource>();
 
     public Resource GetObject()
     {

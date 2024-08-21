@@ -5,12 +5,19 @@ using UnityEngine;
 public class Scanner : MonoBehaviour
 {
     [SerializeField] private Transform _resourcesParent;
-    [SerializeField] private float _delay;
 
     private List<Resource> _resources;
     private int _resourceCount;
 
     public int ResourceCount => _resourceCount;
+
+    public void FindResourcesParent()
+    {
+        var resourceGenerator = FindObjectOfType<ResourceGenerator>();
+
+        if (resourceGenerator != null)
+            _resourcesParent = resourceGenerator.transform;
+    }
 
     public Resource GetResource()
     {

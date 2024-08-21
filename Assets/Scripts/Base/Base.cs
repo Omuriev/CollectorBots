@@ -1,35 +1,71 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Base : MonoBehaviour
 {
-    [SerializeField] private UnitGenerator _unitGenerator;
-    [SerializeField] private Scanner _scanner;
+    [SerializeField] private DropZone _dropZone;
     [SerializeField] private int _startUnitsQuantity;
     [SerializeField] private float _timeUntilNextUnitShipment = 2f;
 
     private List<Unit> _units;
-    private int resourceQuantity = 0;
+    private Flag _currentFlag;
+    private ResourcesCounter _resourcesCounter; 
+    private Scanner _scanner;
+    private Coroutine _sendUnitCoroutine;
+    private UnitGenerator _unitGenerator;
 
-    public event Action<int> QuantityChanged;
+    private int _amountOfResourcesToSpawnUnit = 3;
+    private int _amountOfResourcesToCreateBase = 5;
 
-    private void Awake()
-    {
-        _units = new List<Unit>();
-    }
+    public DropZone DropZone => _dropZone;
+    public ResourcesCounter ResourcesCounter => _resourcesCounter;
+    public int AmountOfResourcesToSpawnUnit => _amountOfResourcesToSpawnUnit;
+
+    private void Awake() => _units = new List<Unit>();
 
     private void Start()
     {
-        CreateUnits(_startUnitsQuantity);
-        StartCoroutine(SendUnit());
+        Initialize();
+
+        if (_sendUnitCoroutine != null)
+        {
+            StopCoroutine(_sendUnitCoroutine);
+        }
+
+        _sendUnitCoroutine = StartCoroutine(SendUnit());
     }
 
-    public void GetResource(Resource resource)
+    public void Initialize()
     {
-        resourceQuantity += resource.Count;
-        QuantityChanged?.Invoke(resourceQuantity);
+        _resourcesCounter = FindObjectOfType<ResourcesCounter>();
+        _scanner = FindObjectOfType<Scanner>();
+        _unitGenerator = FindObjectOfType<UnitGenerator>();
+
+        CreateUnits(_startUnitsQuantity);
+    }
+
+    public int SetStartUnitsQuantity(int value) => _startUnitsQuantity = value;
+
+    public void SetFlag(Flag flag) => _currentFlag = flag;
+
+    public void GetResource(Resource resource) => _resourcesCounter.ChangeResourceQuantity(resource.Count);
+
+    public void AddUnit(Unit unit)
+    {
+        _units.Add(unit);
+        unit.SetBase(this);
+    }
+
+    private void CreateUnits(int quantity)
+    {
+        for (int i = 0; i < quantity; i++)
+        {
+            Unit unit = _unitGenerator.GenerateUnit();
+            unit.SetBase(this);
+
+            _units.Add(unit);
+        }
     }
 
     private IEnumerator SendUnit()
@@ -38,36 +74,42 @@ public class Base : MonoBehaviour
 
         while (enabled)
         {
-            _scanner.ScanSpace();
+            Unit unit = GetAvailableUnit();
 
-            if (_scanner.ResourceCount > 0)
+            if (unit != null)
             {
-                TrySendingUnit();
+                if (_currentFlag != null && _resourcesCounter.ResourcesQuantity >= _amountOfResourcesToCreateBase)
+                {
+                    _currentFlag.BaseCreator.AssignUnit(unit, _currentFlag);
+                    _units.Remove(unit);
+                    unit.ÑhangeAvailability(false);
+                    _resourcesCounter.ChangeResourceQuantity(-_amountOfResourcesToCreateBase);
+                    _currentFlag = null;
+                    unit = null;
+
+                    yield return waitTime;
+                }
+
+                _scanner.ScanSpace();
+
+                if (_scanner.ResourceCount > 0)
+                {
+                    TrySendingUnit(unit);
+                }
             }
 
             yield return waitTime;
         }
     }
 
-    private void CreateUnits(int quantity)
+    private void TrySendingUnit(Unit unit)
     {
-        for (int i = 0; i < quantity; i++)
-        {
-            Unit unit = _unitGenerator.GenerateUnit();
-            unit.SetBase(transform.position);
-
-            _units.Add(unit);
-        }
-    }
-
-    private void TrySendingUnit()
-    {
-        Unit unit = GetAvailableUnit();
         Resource freeResource = _scanner.GetResource();
-        
+
         if (unit != null && freeResource != null)
-        {   
+        {
             unit.SetTarget(freeResource);
+            unit.BringResource();
         }
     }
 
@@ -76,7 +118,9 @@ public class Base : MonoBehaviour
         foreach (Unit unit in _units)
         {
             if (unit.IsAvailable == true)
+            {
                 return unit;
+            }
         }
 
         return null;

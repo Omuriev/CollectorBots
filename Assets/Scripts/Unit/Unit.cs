@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
@@ -10,26 +11,34 @@ public class Unit : MonoBehaviour
 
     private Resource _resource;
     private Vector3 _target;
-    private Vector3 _basePosition;
+    private Base _currentBase;
+    private float _throwForce = 10f;
 
+    public UnitMover UnitMover => _unitMover;
     public bool IsAvailable => _isAvailable;
 
-    private void Update()
+    public void BringResource()
     {
-       BringResource();
+        if (_resource != null)
+            _unitMover.MoveTo(_target);
     }
 
-    public void SetBase(Vector3 basePosition)
+    public void ResetUnit()
     {
-        _basePosition = basePosition;
+        _resource = null;
+        _isAvailable = true;
     }
+
+    public void SetBase(Base currentBase) => _currentBase = currentBase;
+
+    public void ÑhangeAvailability(bool value) => _isAvailable = value;
 
     public void SetTarget(Resource targetResource)
     {
         _target = targetResource.transform.position;
         _resource = targetResource;
 
-        _isAvailable = false;
+        ÑhangeAvailability(false);
 
        _resource.BorrowResource(true);
     }
@@ -42,18 +51,22 @@ public class Unit : MonoBehaviour
             {
                 PickupResource();
 
-                _target = _basePosition;
+                _target = _currentBase.transform.position;
+                _unitMover.MoveTo(_target);
             }
         }
 
-        if (collider.gameObject.TryGetComponent(out Base unitBase))
+        if (collider.gameObject.TryGetComponent(out DropZone dropZone))
         {
-            if (_resource != null)
+            if (_currentBase.GetComponentInChildren<DropZone>() == dropZone)
             {
-                unitBase.GetResource(_resource);
-                ThrowResource();
+                if (_resource != null)
+                {
+                    _currentBase.GetResource(_resource);
+                    ThrowResource();
 
-                _isAvailable = true;
+                    ÑhangeAvailability(true);
+                }
             }
         }
     }
@@ -64,10 +77,11 @@ public class Unit : MonoBehaviour
             return;
 
         rigidbody.isKinematic = false;
-        rigidbody.AddForce(Vector3.forward * 10f * Time.deltaTime);
+        rigidbody.AddForce(Vector3.forward * _throwForce * Time.deltaTime);
 
         _resource.BorrowResource(false);
-
+        _resource.gameObject.transform.SetParent(null, true);
+        _resource.Throw();
         _resource = null;
     }
 
@@ -90,11 +104,5 @@ public class Unit : MonoBehaviour
             return true;
 
         return false;
-    }
-
-    private void BringResource()
-    {
-        if (_resource != null)
-            _unitMover.MoveTo(_target);
     }
 }
