@@ -224,10 +224,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 248c3c0c9157c6146abb3d34a33f077b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitGenerator: {fileID: 0}
   _dropZone: {fileID: 4303677089298745900}
+  _flagPrefab: {fileID: 4019317736431722031, guid: 06f59d00c8793fc45b73f703792d3b49, type: 3}
   _startUnitsQuantity: 3
   _timeUntilNextUnitShipment: 1
+  _baseSelector: {fileID: 0}
+  _flagCreator: {fileID: 0}
 --- !u!65 &8306485695547521826
 BoxCollider:
   m_ObjectHideFlags: 0

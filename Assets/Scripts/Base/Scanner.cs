@@ -11,14 +11,6 @@ public class Scanner : MonoBehaviour
 
     public int ResourceCount => _resourceCount;
 
-    public void FindResourcesParent()
-    {
-        var resourceGenerator = FindObjectOfType<ResourceGenerator>();
-
-        if (resourceGenerator != null)
-            _resourcesParent = resourceGenerator.transform;
-    }
-
     public Resource GetResource()
     {
         foreach (Resource resource in _resources)

@@ -7,8 +7,6 @@ public class ResourcesCounter : MonoBehaviour
 
     public event Action<int> QuantityChanged;
 
-    public int ResourcesQuantity => _resourcesQuantity;
-
     public void ChangeResourceQuantity(int quantity)
     {
         _resourcesQuantity += quantity;

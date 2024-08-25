@@ -3,7 +3,6 @@ using UnityEngine;
 public class UnitGenerator : MonoBehaviour
 {
     [SerializeField] private Transform _baseZone;
-    [SerializeField] private BaseSelector _baseSelector;
     [SerializeField] private Unit _prefab;
 
     private float _minXOffset = -2f;
@@ -11,26 +10,12 @@ public class UnitGenerator : MonoBehaviour
     private float _minZOffset = -2f;
     private float _maxZOffset = 2f;
 
-    public void Update()
+    public void InitializeUnit(Base selectedBase)
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            InitializeUnit();
-        }
-    }
-
-    public void InitializeUnit()
-    {
-        if (_baseSelector.Base != null)
-        {
-            if (_baseSelector.Base.ResourcesCounter.ResourcesQuantity >= _baseSelector.Base.AmountOfResourcesToSpawnUnit)
-            {
-                _baseZone = _baseSelector.Base.DropZone.transform;
-                Unit unit = GenerateUnit();
-                unit.SetBase(_baseSelector.Base);
-                _baseSelector.Base.AddUnit(unit);
-            }
-        }   
+        _baseZone = selectedBase.DropZone.transform;
+        Unit unit = GenerateUnit();
+        unit.SetBase(selectedBase);
+        selectedBase.AddUnit(unit);  
     }
 
     public Unit GenerateUnit()

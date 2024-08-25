@@ -16,6 +16,7 @@ public class Unit : MonoBehaviour
 
     public UnitMover UnitMover => _unitMover;
     public bool IsAvailable => _isAvailable;
+    public Base CurrentBase => _currentBase;
 
     public void BringResource()
     {
@@ -23,7 +24,7 @@ public class Unit : MonoBehaviour
             _unitMover.MoveTo(_target);
     }
 
-    public void ResetUnit()
+    public void Reset()
     {
         _resource = null;
         _isAvailable = true;
