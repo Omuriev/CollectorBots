@@ -1,15 +1,11 @@
 using UnityEngine;
 
-public class BaseSelector : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
     private const KeyCode SelectKeyCode = KeyCode.Mouse0;
+    private const KeyCode BuyUnitKeyCode = KeyCode.Q;
 
     private Base _base;
-    private RaycastHit _hit;
-    private bool _isSelect = false;
-
-    public Base Base => _base;
-    public bool IsSelect => _isSelect;
 
     private void Update()
     {
@@ -17,14 +13,22 @@ public class BaseSelector : MonoBehaviour
         {
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))
             {
-                _isSelect = true;
-
                 if (hit.collider.TryGetComponent(out Base selectedBase))
                 {
                     _base = selectedBase;
-                    _hit = hit;
+                }
+                else
+                {
+                    if (_base != null)
+                        _base.CreateFlag(hit.point);
                 }
             }
+        }
+
+        if (Input.GetKeyDown(BuyUnitKeyCode))
+        {
+            if (_base != null)
+                _base.BuyUnit();
         }
     }
 }

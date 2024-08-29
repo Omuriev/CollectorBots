@@ -3,13 +3,35 @@ using UnityEngine;
 
 public class ResourcesCounter : MonoBehaviour
 {
+    private ResourcesDisplayer _displayer;
     private int _resourcesQuantity = 0;
 
-    public event Action<int> QuantityChanged;
+    public int ResourcesQuantity => _resourcesQuantity;
 
-    public void ChangeResourceQuantity(int quantity)
+    public ResourcesDisplayer Displayer => _displayer;
+
+    public void SetResourceDisplayer(ResourcesDisplayer displayer)
     {
-        _resourcesQuantity += quantity;
-        QuantityChanged?.Invoke(_resourcesQuantity);
+        _displayer = displayer;
+        _displayer.AddCounter(this);
+    }
+
+    public void AccrueResources(int quantity)
+    {
+        if (quantity >= 0)
+        {
+            _resourcesQuantity += quantity;
+            _displayer.UpdateInfo();
+        }
+    }
+
+    public void WriteOffResources(int quantity)
+    {
+        if (quantity >= 0)
+        {
+            _resourcesQuantity -= quantity;
+            _displayer.UpdateInfo();
+        }
+            
     }
 }

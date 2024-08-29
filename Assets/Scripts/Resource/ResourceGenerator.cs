@@ -9,21 +9,23 @@ public class ResourceGenerator : MonoBehaviour
     [SerializeField] private BoxCollider _spawnZone;
     [SerializeField] private Transform _parentTransform;
     [SerializeField] private float spawnPositionY = 0f;
+    [SerializeField] private ResourceStorage _storage;
 
     private void Start() => StartCoroutine(GenerateResource());
 
     private IEnumerator GenerateResource()
     {
         WaitForSeconds waitTime = new WaitForSeconds(_delay);
-
+        
         while(enabled)
         {
-            SpawnResource();
+            Resource resource = SpawnResource();
+            _storage.AddResource(resource);
             yield return waitTime;
         }
     }
 
-    private void SpawnResource()
+    private Resource SpawnResource()
     {
         float spawnPositionX = Random.Range(_spawnZone.bounds.min.x, _spawnZone.bounds.max.x);
         float spawnPositionZ = Random.Range(_spawnZone.bounds.min.z, _spawnZone.bounds.max.z);
@@ -35,6 +37,8 @@ public class ResourceGenerator : MonoBehaviour
         resource.gameObject.SetActive(true);
         resource.transform.position = spawnPoint;
         resource.Destroyed += OnDestroyed;
+
+        return resource;
     }
 
     private void OnDestroyed(Resource resource)

@@ -23,13 +23,11 @@ public class ObjectPool : MonoBehaviour
 
     public void PutObject(Resource resource)
     {
-        Rigidbody resourceRigidbody = resource.GetComponent<Rigidbody>();
-
-        if (resourceRigidbody == null)
-            return;
-
-        resourceRigidbody.isKinematic = true;
-        resource.gameObject.SetActive(false);
-        _resources.Enqueue(resource);
+        if (resource.TryGetComponent(out Rigidbody rigidbody))
+        {
+            rigidbody.isKinematic = true;
+            resource.gameObject.SetActive(false);
+            _resources.Enqueue(resource);
+        }
     }
 }

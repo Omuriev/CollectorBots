@@ -1,14 +1,28 @@
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
+using System;
 
 public class ResourcesDisplayer : MonoBehaviour
 {
     [SerializeField] private ResourcesCounter _resourcesCounter;
     [SerializeField] private TMP_Text _resourcesQuantityText;
 
-    private void OnEnable() => _resourcesCounter.QuantityChanged += OnResourceQuantityChanged;
+    private List<ResourcesCounter> _countersList;
 
-    private void OnDisable() => _resourcesCounter.QuantityChanged -= OnResourceQuantityChanged;
+    private void Awake() => _countersList = new List<ResourcesCounter>();
 
-    private void OnResourceQuantityChanged(int quantity) => _resourcesQuantityText.text = "Resources: " + quantity;
+    public void AddCounter(ResourcesCounter counter) => _countersList.Add(counter);
+
+    public void UpdateInfo()
+    {
+        int resourcesCount = 0;
+
+        foreach (var counter in _countersList)
+        {
+            resourcesCount += counter.ResourcesQuantity;
+        }
+
+        _resourcesQuantityText.text = "Resources: " + resourcesCount;
+    }
 }

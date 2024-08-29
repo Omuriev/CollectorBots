@@ -1,12 +1,11 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
     [SerializeField] private UnitMover _unitMover;
     [SerializeField] private Transform _hand;
-    
+    [SerializeField] private BaseCreator _creator;
+
     private bool _isAvailable = true;
 
     private Resource _resource;
@@ -14,35 +13,8 @@ public class Unit : MonoBehaviour
     private Base _currentBase;
     private float _throwForce = 10f;
 
-    public UnitMover UnitMover => _unitMover;
     public bool IsAvailable => _isAvailable;
     public Base CurrentBase => _currentBase;
-
-    public void BringResource()
-    {
-        if (_resource != null)
-            _unitMover.MoveTo(_target);
-    }
-
-    public void Reset()
-    {
-        _resource = null;
-        _isAvailable = true;
-    }
-
-    public void SetBase(Base currentBase) => _currentBase = currentBase;
-
-    public void ÑhangeAvailability(bool value) => _isAvailable = value;
-
-    public void SetTarget(Resource targetResource)
-    {
-        _target = targetResource.transform.position;
-        _resource = targetResource;
-
-        ÑhangeAvailability(false);
-
-       _resource.BorrowResource(true);
-    }
 
     private void OnTriggerEnter(Collider collider)
     {
@@ -59,7 +31,7 @@ public class Unit : MonoBehaviour
 
         if (collider.gameObject.TryGetComponent(out DropZone dropZone))
         {
-            if (_currentBase.GetComponentInChildren<DropZone>() == dropZone)
+            if (_currentBase.DropZone == dropZone)
             {
                 if (_resource != null)
                 {
@@ -70,40 +42,62 @@ public class Unit : MonoBehaviour
                 }
             }
         }
+
+        if (collider.TryGetComponent(out Flag flag))
+        {
+            if (_currentBase.CurrentFlag == flag)
+            {
+                Destroy(flag.gameObject);
+                _creator.CreateBase(this);
+            }
+        }
+    }
+
+    public void BringResource()
+    {
+        _unitMover.MoveTo(_target);
+    }
+
+    public void Reset()
+    {
+        _resource = null;
+        _isAvailable = true;
+    }
+
+    public void SetBase(Base currentBase) => _currentBase = currentBase;
+
+    public void ÑhangeAvailability(bool value) => _isAvailable = value;
+
+    public void SetTargetResource(Resource resource) => _resource = resource;
+
+    public void SetTarget(Vector3 position)
+    {
+        _target = position;
+        _unitMover.MoveTo(_target);
+        ÑhangeAvailability(false);
     }
 
     private void ThrowResource()
     {
-        if (TryGetResourceRigidbody(out Rigidbody rigidbody) == false)
-            return;
+        if (_resource.TryGetComponent(out Rigidbody rigidbody))
+        {
+            rigidbody.isKinematic = false;
+            rigidbody.AddForce(Vector3.forward * _throwForce * Time.deltaTime);
 
-        rigidbody.isKinematic = false;
-        rigidbody.AddForce(Vector3.forward * _throwForce * Time.deltaTime);
-
-        _resource.BorrowResource(false);
-        _resource.gameObject.transform.SetParent(null, true);
-        _resource.Throw();
-        _resource = null;
+            _resource.gameObject.transform.SetParent(null, true);
+            _resource.Throw();
+            _resource = null;
+        }
     }
 
     private void PickupResource()
     {
-        if (TryGetResourceRigidbody(out Rigidbody rigidbody) == false)
-            return;
+        if (_resource.TryGetComponent(out Rigidbody rigidbody))
+        {
+            _resource.gameObject.transform.SetParent(_hand);
+            _resource.transform.position = _hand.position;
 
-        _resource.gameObject.transform.SetParent(_hand);
-        _resource.transform.position = _hand.position;
-
-        rigidbody.isKinematic = true;
-    }
-
-    private bool TryGetResourceRigidbody(out Rigidbody rigidbody)
-    {
-        rigidbody = _resource.GetComponent<Rigidbody>();
-
-        if (rigidbody != null)
-            return true;
-
-        return false;
+            rigidbody.isKinematic = true;
+        }
     }
 }

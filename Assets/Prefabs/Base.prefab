@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 8259789475236666492}
   - component: {fileID: 8664702070188705625}
   - component: {fileID: 8306485695547521826}
+  - component: {fileID: 8399012673173537706}
   m_Layer: 7
   m_Name: Base
   m_TagString: Untagged
@@ -225,11 +226,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dropZone: {fileID: 4303677089298745900}
-  _flagPrefab: {fileID: 4019317736431722031, guid: 06f59d00c8793fc45b73f703792d3b49, type: 3}
   _startUnitsQuantity: 3
   _timeUntilNextUnitShipment: 1
   _baseSelector: {fileID: 0}
-  _flagCreator: {fileID: 0}
+  _unitGenerator: {fileID: 0}
+  _flagPrefab: {fileID: 4019317736431722031, guid: 06f59d00c8793fc45b73f703792d3b49, type: 3}
+  _scanner: {fileID: 0}
+  _resourcesCounter: {fileID: 8399012673173537706}
 --- !u!65 &8306485695547521826
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -251,3 +254,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 5.9815984, y: 4.698191, z: 3.6232872}
   m_Center: {x: 2.117775, y: 1.8490956, z: 4.279793}
+--- !u!114 &8399012673173537706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8585145980350204830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c17c3c8d04683fb48b73de93338aaecb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

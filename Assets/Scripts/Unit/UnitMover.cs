@@ -22,7 +22,7 @@ public class UnitMover : MonoBehaviour
 
     public IEnumerator Move(Vector3 target)
     {
-        while (Vector3.Distance(transform.position, target) > _maxDistanceToObject)
+        while (Vector3.SqrMagnitude(target) > _maxDistanceToObject * _maxDistanceToObject)
         {
             Vector3 verticalVelocity = _rigidbody.velocity;
             verticalVelocity.y = 0;
