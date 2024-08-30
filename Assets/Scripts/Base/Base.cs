@@ -13,7 +13,6 @@ public class Base : MonoBehaviour
     [SerializeField] private Flag _flagPrefab;
     [SerializeField] private ResourceStorage _resourceStorage;
     [SerializeField] private ResourcesCounter _resourcesCounter;
-    [SerializeField] private ResourcesDisplayer _displayer;
 
     private List<Unit> _units;
     private List<Resource> _resources;
@@ -25,9 +24,6 @@ public class Base : MonoBehaviour
     private int _amountOfResourcesToCreateBase = 5;
 
     public DropZone DropZone => _dropZone;
-    public ResourcesCounter ResourcesCounter => _resourcesCounter;
-    public ResourceStorage ResourceStorage => _resourceStorage;
-    public UnitGenerator UnitGenerator => _unitGenerator;
     public Flag CurrentFlag => _currentFlag;
 
     private void Awake()
@@ -39,7 +35,6 @@ public class Base : MonoBehaviour
     private void Start()
     {
         CreateUnits(_startUnitsQuantity);
-        _resourcesCounter.SetResourceDisplayer(_displayer);
 
         if (_sendUnitCoroutine != null)
         {
@@ -52,19 +47,17 @@ public class Base : MonoBehaviour
     public void Initialize(
         ResourceStorage storage, 
         UnitGenerator unitGenerator,
-        ResourcesDisplayer displayer, 
         int unitQuantity = 0)
     {
         _resourceStorage = storage;
         _unitGenerator = unitGenerator;
-        _displayer = displayer;
         
         SetStartUnitsQuantity(unitQuantity);
     }
 
     public int SetStartUnitsQuantity(int value) => _startUnitsQuantity = value;
 
-    public void GetResource(Resource resource)
+    public void TakeResource(Resource resource)
     {
         int resourceCount = 1;
         _resourcesCounter.AccrueResources(resourceCount);
@@ -122,7 +115,7 @@ public class Base : MonoBehaviour
                 if (_currentFlag != null && _resourcesCounter.ResourcesQuantity >= _amountOfResourcesToCreateBase)
                 {
                     _units.Remove(unit);
-                    unit.ÑhangeAvailability(false);
+                    unit.MakeInaccessible();
                     unit.SetTarget(_currentFlag.transform.position);
                     _resourcesCounter.WriteOffResources(_amountOfResourcesToCreateBase);
                     unit = null;
@@ -143,8 +136,7 @@ public class Base : MonoBehaviour
 
         if (unit != null && resource != null)
         {
-            unit.SetTarget(resource.transform.position);
-            unit.SetTargetResource(resource);
+            unit.SetTarget(resource.transform.position, resource);
         }
     }
 

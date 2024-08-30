@@ -8,21 +8,11 @@ public class ResourcesDisplayer : MonoBehaviour
     [SerializeField] private ResourcesCounter _resourcesCounter;
     [SerializeField] private TMP_Text _resourcesQuantityText;
 
-    private List<ResourcesCounter> _countersList;
+    private void OnEnable() => _resourcesCounter.QuantityChanged += OnQuantityChanged;
+    private void OnDisable() => _resourcesCounter.QuantityChanged -= OnQuantityChanged;
 
-    private void Awake() => _countersList = new List<ResourcesCounter>();
-
-    public void AddCounter(ResourcesCounter counter) => _countersList.Add(counter);
-
-    public void UpdateInfo()
+    private void OnQuantityChanged(int quantity)
     {
-        int resourcesCount = 0;
-
-        foreach (var counter in _countersList)
-        {
-            resourcesCount += counter.ResourcesQuantity;
-        }
-
-        _resourcesQuantityText.text = "Resources: " + resourcesCount;
+        _resourcesQuantityText.text = "Resources: " + quantity;
     }
 }

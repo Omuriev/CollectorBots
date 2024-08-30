@@ -4,100 +4,103 @@ public class Unit : MonoBehaviour
 {
     [SerializeField] private UnitMover _unitMover;
     [SerializeField] private Transform _hand;
-    [SerializeField] private BaseCreator _creator;
-
+    
     private bool _isAvailable = true;
 
-    private Resource _resource;
-    private Vector3 _target;
+    private Resource _currentResource;
+    private Resource _targetResource;
+    private Vector3 _targetPoint;
     private Base _currentBase;
     private float _throwForce = 10f;
+    private BaseCreator _baseCreator;
 
     public bool IsAvailable => _isAvailable;
-    public Base CurrentBase => _currentBase;
 
     private void OnTriggerEnter(Collider collider)
     {
         if (collider.gameObject.TryGetComponent(out Resource resource))
-        {
-            if (_resource == resource)
-            {
-                PickupResource();
-
-                _target = _currentBase.transform.position;
-                _unitMover.MoveTo(_target);
-            }
-        }
+            PickupResource(resource);
 
         if (collider.gameObject.TryGetComponent(out DropZone dropZone))
-        {
-            if (_currentBase.DropZone == dropZone)
-            {
-                if (_resource != null)
-                {
-                    _currentBase.GetResource(_resource);
-                    ThrowResource();
-
-                    ÑhangeAvailability(true);
-                }
-            }
-        }
+            ThrowResource(dropZone);
 
         if (collider.TryGetComponent(out Flag flag))
-        {
-            if (_currentBase.CurrentFlag == flag)
-            {
-                Destroy(flag.gameObject);
-                _creator.CreateBase(this);
-            }
-        }
-    }
-
-    public void BringResource()
-    {
-        _unitMover.MoveTo(_target);
+            BuildBase(flag);
     }
 
     public void Reset()
     {
-        _resource = null;
+        _currentResource = null;
         _isAvailable = true;
     }
 
     public void SetBase(Base currentBase) => _currentBase = currentBase;
+    public void SetBaseCreator(BaseCreator baseCreator) => _baseCreator = baseCreator;
 
-    public void ÑhangeAvailability(bool value) => _isAvailable = value;
+    public void MakeAccessible() => _isAvailable = true;
+    public void MakeInaccessible() => _isAvailable = false;
 
-    public void SetTargetResource(Resource resource) => _resource = resource;
-
-    public void SetTarget(Vector3 position)
+    public void SetTarget(Vector3 position, Resource resource = null)
     {
-        _target = position;
-        _unitMover.MoveTo(_target);
-        ÑhangeAvailability(false);
+        _targetPoint = position;
+        _unitMover.MoveTo(_targetPoint);
+
+        if (resource != null)
+            _targetResource = resource;
+
+        MakeInaccessible();
     }
 
-    private void ThrowResource()
+    private void BuildBase(Flag flag)
     {
-        if (_resource.TryGetComponent(out Rigidbody rigidbody))
-        {
-            rigidbody.isKinematic = false;
-            rigidbody.AddForce(Vector3.forward * _throwForce * Time.deltaTime);
+        Reset();
 
-            _resource.gameObject.transform.SetParent(null, true);
-            _resource.Throw();
-            _resource = null;
+        if (_currentBase.CurrentFlag == flag)
+        {
+            Destroy(flag.gameObject);
+            _baseCreator.CreateBase(this);
         }
     }
 
-    private void PickupResource()
+    private void ThrowResource(DropZone dropZone)
     {
-        if (_resource.TryGetComponent(out Rigidbody rigidbody))
+        if (_currentBase.DropZone == dropZone)
         {
-            _resource.gameObject.transform.SetParent(_hand);
-            _resource.transform.position = _hand.position;
+            if (_currentResource != null)
+            {
+                if (_currentResource.TryGetComponent(out Rigidbody rigidbody))
+                {
+                    rigidbody.isKinematic = false;
+                    rigidbody.AddForce(Vector3.forward * _throwForce * Time.deltaTime);
 
-            rigidbody.isKinematic = true;
+                    _currentBase.TakeResource(_currentResource);
+
+                    _currentResource.gameObject.transform.SetParent(null, true);
+                    _currentResource.Throw();
+                    _currentResource = null;
+                    _targetResource = null;
+
+                    MakeAccessible();
+                }
+            }
+        }
+    }
+
+    private void PickupResource(Resource resource)
+    {
+        if (_targetResource == resource)
+        {
+            _currentResource = resource;
+
+            if (_currentResource.TryGetComponent(out Rigidbody rigidbody))
+            {
+                _currentResource.gameObject.transform.SetParent(_hand);
+                _currentResource.transform.position = _hand.position;
+                rigidbody.isKinematic = true;
+
+                _targetPoint = _currentBase.transform.position;
+                _unitMover.MoveTo(_targetPoint);
+            }
         }
     }
 }

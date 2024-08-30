@@ -4,6 +4,7 @@ public class UnitGenerator : MonoBehaviour
 {
     [SerializeField] private Transform _baseZone;
     [SerializeField] private Unit _prefab;
+    [SerializeField] private BaseCreator _baseCreator;
 
     private float _minXOffset = -2f;
     private float _maxXOffset = 2f;
@@ -20,10 +21,9 @@ public class UnitGenerator : MonoBehaviour
 
     public Unit GenerateUnit()
     {
-        Vector3 spawnPoint = GetRandomPosition();
-        Unit unit = Instantiate(_prefab);
-        unit.transform.position = spawnPoint;
-        
+        Unit unit = Instantiate(_prefab, GetRandomPosition(), Quaternion.identity);
+        unit.SetBaseCreator(_baseCreator);
+
         return unit;
     }
 
@@ -32,8 +32,6 @@ public class UnitGenerator : MonoBehaviour
         float xOffset = Random.Range(_minXOffset, _maxXOffset);
         float zOffset = Random.Range(_minZOffset, _maxZOffset);
 
-        Vector3 spawnPoint = new Vector3(_baseZone.position.x + xOffset, 0.5f, _baseZone.position.z + zOffset);
-
-        return spawnPoint;
+        return new Vector3(_baseZone.position.x + xOffset, 0.5f, _baseZone.position.z + zOffset);
     }
 }

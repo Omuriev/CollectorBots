@@ -22,6 +22,8 @@ public class UnitMover : MonoBehaviour
 
     public IEnumerator Move(Vector3 target)
     {
+        WaitForFixedUpdate waitForFixedUpdate = new WaitForFixedUpdate();
+
         while (Vector3.SqrMagnitude(target) > _maxDistanceToObject * _maxDistanceToObject)
         {
             Vector3 verticalVelocity = _rigidbody.velocity;
@@ -30,7 +32,7 @@ public class UnitMover : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, target + verticalVelocity, Time.deltaTime * _speed);
 
-            yield return new WaitForFixedUpdate();
+            yield return waitForFixedUpdate;
         }
 
         StopCoroutine(_moveToCreateCoroutine);

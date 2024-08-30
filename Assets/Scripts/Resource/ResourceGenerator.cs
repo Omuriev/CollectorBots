@@ -9,7 +9,7 @@ public class ResourceGenerator : MonoBehaviour
     [SerializeField] private BoxCollider _spawnZone;
     [SerializeField] private Transform _parentTransform;
     [SerializeField] private float spawnPositionY = 0f;
-    [SerializeField] private ResourceStorage _storage;
+    [SerializeField] private ResourceStorage _resourceStorage;
 
     private void Start() => StartCoroutine(GenerateResource());
 
@@ -20,7 +20,7 @@ public class ResourceGenerator : MonoBehaviour
         while(enabled)
         {
             Resource resource = SpawnResource();
-            _storage.AddResource(resource);
+            _resourceStorage.AddResource(resource);
             yield return waitTime;
         }
     }
