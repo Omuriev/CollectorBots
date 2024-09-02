@@ -20,10 +20,11 @@ public class ResourceStorage : MonoBehaviour
         if (_freeResources.Count > 0)
         {
             Resource resource = _freeResources[0];
-            _freeResources.Remove(resource);
             return resource;
         }
 
         return null;
     }
+
+   public void RemoveResource(Resource resource) => _freeResources.Remove(resource);
 }

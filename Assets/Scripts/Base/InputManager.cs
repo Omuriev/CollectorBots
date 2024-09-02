@@ -27,7 +27,7 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetKeyDown(BuyUnitKeyCode))
         {
-            if (_base != null)
+            if (_base != null && _base.TryToBuyUnit())
                 _base.BuyUnit();
         }
     }

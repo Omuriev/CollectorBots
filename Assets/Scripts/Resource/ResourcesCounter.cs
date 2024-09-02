@@ -5,9 +5,9 @@ public class ResourcesCounter : MonoBehaviour
 {
     private int _resourcesQuantity = 0;
 
-    public int ResourcesQuantity => _resourcesQuantity;
-
     public event Action<int> QuantityChanged;
+
+    public int ResourcesQuantity => _resourcesQuantity;
 
     private void Start()
     {

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Base : MonoBehaviour
@@ -22,6 +23,7 @@ public class Base : MonoBehaviour
 
     private int _amountOfResourcesToBuyUnit = 3;
     private int _amountOfResourcesToCreateBase = 5;
+    private int _minNumberOfUnitsForConstruction = 2;
 
     public DropZone DropZone => _dropZone;
     public Flag CurrentFlag => _currentFlag;
@@ -69,13 +71,12 @@ public class Base : MonoBehaviour
         unit.SetBase(this);
     }
 
+    public bool TryToBuyUnit() => _resourcesCounter.ResourcesQuantity >= _amountOfResourcesToBuyUnit;
+
     public void BuyUnit()
     {
-        if (_resourcesCounter.ResourcesQuantity >= _amountOfResourcesToBuyUnit)
-        {
-            _unitGenerator.InitializeUnit(this);
-            _resourcesCounter.WriteOffResources(_amountOfResourcesToBuyUnit);
-        }
+        _unitGenerator.InitializeUnit(this);
+        _resourcesCounter.WriteOffResources(_amountOfResourcesToBuyUnit);
     }
 
     public void CreateFlag(Vector3 hitPoint)
@@ -112,7 +113,7 @@ public class Base : MonoBehaviour
 
             if (unit != null)
             {
-                if (_currentFlag != null && _resourcesCounter.ResourcesQuantity >= _amountOfResourcesToCreateBase)
+                if (_currentFlag != null && _resourcesCounter.ResourcesQuantity >= _amountOfResourcesToCreateBase && _units.Count >= _minNumberOfUnitsForConstruction)
                 {
                     _units.Remove(unit);
                     unit.MakeInaccessible();
@@ -137,6 +138,7 @@ public class Base : MonoBehaviour
         if (unit != null && resource != null)
         {
             unit.SetTarget(resource.transform.position, resource);
+            _resourceStorage.RemoveResource(resource);
         }
     }
 
